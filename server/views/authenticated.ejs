@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Authenticated</title>
+</head>
+
+<body>
+  <script>
+
+    var data = {
+      token: '<%=jwtToken%>',
+    }
+
+    window.opener.postMessage(data, '<%= clientUrl %>');
+    window.close();
+  </script>
+</body>
+
+</html>
