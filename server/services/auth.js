@@ -4,6 +4,8 @@ let client = require('redis').createClient(process.env.REDIS_URL);
 let Redis = require('ioredis');
 let redis = new Redis(process.env.REDIS_URL);
 
+const token_expiresIn = 600;
+
 function saveRefreshToken(refreshToken, steamid, cb){
     client.set(refreshToken, JSON.stringify(steamid), (err, res) => {
         if(err){
@@ -35,7 +37,7 @@ function generateNewAccessToken(refreshToken, cb){
         if(rep){
             let steamid = JSON.parse(rep);
             const token = jwt.sign({user: steamid}, process.env.SECRET_KEY, {
-                expiresIn: 60
+                expiresIn: token_expiresIn
             });
             return cb(token);
         }else{

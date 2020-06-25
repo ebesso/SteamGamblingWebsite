@@ -6,14 +6,23 @@ export const getToken = function getJWTToken(){
     return localStorage.getItem('jwtToken')
 }
 
-export const getBalance = function getBalance(){
+export const getSteamProfile = function getSteamProfile(cb){
+    axios.get(BACKEND_URL + '/user/get/steam', {headers: {Authorization: 'Bearer ' + getToken()}}).then(res => {
+        cb(res.data);
+    }, (error) => {
+        console.log(error.message);
+        cb(null)
+    });
+}
 
-    axios.get(BACKEND_URL + '/user/get/balance', {headers: {Authorization: 'Bearer ' + getToken()}}).then(res => {
+export const getBalance = function getBalance(cb){
+
+    axios.get(BACKEND_URL + '/user/get/balance', {withCredentials: true, headers: {Authorization: 'Bearer ' + getToken()}}).then(res => {
 
         if(res.status == 200){
-            return res.data.balance;
+            return cb(res.data.balance);
         }else{
-            return null;
+            return cb(null);
         }
 
     });
@@ -21,10 +30,12 @@ export const getBalance = function getBalance(){
 
 export const getNewAccessToken = function getNewAccessToken(cb){
     axios.get(BACKEND_URL + '/auth/token', {withCredentials: true}).then((res) => {
+        console.log('Refreshed access token');
         localStorage.setItem('jwtToken', res.data.jwtToken);
         return cb(true);
 
     }, (error) => {
+        console.log('Failed to refresh access token');
         return cb(false);
     });
 }

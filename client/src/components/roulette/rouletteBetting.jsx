@@ -41,7 +41,7 @@ class RouletteBetting extends Component{
         }
 
         this.props.placeBet(bet);
-        this.setState({amount: 0});
+        this.setState({amount: 1});
     }
     updateDimensions = () => {
         if(window.innerWidth < 1250){

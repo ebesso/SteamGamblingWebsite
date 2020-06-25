@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const expressJWT = require('express-jwt');
 const randToken = require('rand-token');
 const { generateNewAccessToken, saveRefreshToken, removeRefreshToken } = require('../services/auth');
-const { ConnectionBase } = require('mongoose');
 
 const router = express.Router();
 

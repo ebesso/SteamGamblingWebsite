@@ -8,6 +8,10 @@ import { FaChessBishop } from 'react-icons/fa';
 
 import {getToken, getBalance} from '../../services/authentication';
 
+import LoginRequired from '../dialogs/LoginRequired'; 
+import InsufficentFunds from '../dialogs/InsufficentFunds';
+
+
 const ENDPOINT = '192.168.133.155:5000/roulette';
 
 class Roulette extends Component{
@@ -16,7 +20,11 @@ class Roulette extends Component{
         countdown: 0,
         active: true,
         bets: [],
-        winningColor: null
+        winningColor: null,
+        dialogs: {
+            loginRequired: false,
+            insufficentFunds: false,
+        }
     }
 
     constructor(){
@@ -28,21 +36,46 @@ class Roulette extends Component{
 
     updateState = (data) => {
         this.setState({countdown: 20 - (new Date().getTime() - new Date(data.countdownStarted).getTime()) / 1000, active: data.active, bets: data.bets});
+        this.props.updateBalance();
     }
 
     roll = (data) => {
         this.setState({winningColor: data.color, active: true, countdown: 0});
     }
 
+    handleLogin = () => {
+        this.setState({dialogs: {loginRequired: false}});
+        this.props.handleLogin();
+    }
+
+    closeLoginRequiredPopup = () => {
+        this.setState({dialogs: {loginRequired: false}});
+    }
+    closeInsufficentFundsPopup = () => {
+        this.setState({dialogs: {insufficentFunds: false}});
+    }
     placeBet = (data) => {
 
-        getBalance();
+        if(this.props.user.loggedIn){
+            this.socket.emit('placeBet', {
+                jwtToken: getToken(),
+                amount: data.amount,
+                color: data.color
+            });
+        }else{
+            this.setState({dialogs: {loginRequired: true}});
+        }
 
-        this.socket.emit('placeBet', {
-            jwtToken: getToken(),
-            amount: data.amount,
-            color: data.color
-        });
+    }
+
+    handleBetResponse = (data) => {
+        if(data.success == true){
+            this.props.updateBalance(data.newBalance);
+        }else{
+            if(data.message == 'Insufficent funds'){
+                this.setState({dialogs: {insufficentFunds: true}});
+            }
+        }
     }
 
     betPlaced = (data) => {
@@ -50,10 +83,10 @@ class Roulette extends Component{
     }
 
     componentDidMount(){
-        this.socket.on('sync', this.updateState)
+        this.socket.on('sync', this.updateState);
         this.socket.on('roll', this.roll);
-
         this.socket.on('newBet', this.betPlaced);
+        this.socket.on('betResponse', this.handleBetResponse);
     }
     componentWillUnmount(){
         this.socket.close();
@@ -62,6 +95,9 @@ class Roulette extends Component{
     render(){
         return (
             <div>
+                <LoginRequired open={this.state.dialogs.loginRequired} onClose={this.closeLoginRequiredPopup} login={this.handleLogin}/>
+                <InsufficentFunds open={this.state.dialogs.insufficentFunds} onClose={this.closeInsufficentFundsPopup}/>
+
                 <div style={{width: '100%', zIndex: '2'}}>
                     <RouletteGame maskWidth='60%' countdown={this.state.countdown} roll={this.state.active} winningColor={this.state.winningColor}/>
                 </div>
