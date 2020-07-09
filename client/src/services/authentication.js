@@ -36,6 +36,7 @@ export const getNewAccessToken = function getNewAccessToken(cb){
 
     }, (error) => {
         console.log('Failed to refresh access token');
+        localStorage.removeItem('jwtToken');
         return cb(false);
     });
 }

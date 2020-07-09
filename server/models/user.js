@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const { fchown } = require('fs');
+const Bet = require('./bet');
+
 
 const userSchema = new mongoose.Schema({
     steamid: {type: String},
@@ -8,23 +9,77 @@ const userSchema = new mongoose.Schema({
     bets: [{type: mongoose.Schema.Types.ObjectID, ref: 'Bets'}]
 });
 
-userSchema.statics.getUserBalance = function getUserBalance(steamid, cb){
-    mongoose.model('Users').findOne({steamid: steamid}, function(err, user){
-        return cb(user.balance);
+function calculateBalance(steamid, cb){
+    User.findOne({steamid: steamid}).populate('bets').exec(function(err, user){
+        if(err){
+            console.log(err.message);
+        }
+        let value = 0;
+        for(var i = 0; i < user.bets.length; i++){
+            if(user.bets[i].active == true){
+                value+=user.bets[i].amount;
+            }
+        }
+        let balance = user.balance - value;
+
+        cb(balance);
+
     });
 }
 
-userSchema.statics.removeUserBalance = function removeUserBalance(steamid, balance, cb){
-    mongoose.model('Users').findOne({steamid: steamid},function(err, user){
-        if(user.balance >= balance){
-            user.balance -= balance;
-            user.save(function(err, newUser){
-                if(err) return cb(false, null);
-                return cb(true, newUser.balance);
-            });
-        }else{
-            return cb(false, null);
+userSchema.statics.getUserBalance = function getUserBalance(steamid, cb){
+    calculateBalance(steamid, cb);
+}
+
+userSchema.statics.removeActiveBets = (cb) => {
+    mongoose.model('Users').find({}).populate('bets').exec(function(err, users){
+        for(var i = 0; i < users.length; i++){
+            let user = users[i];
+            let objectIds = [];
+            for(var x = 0; x < user.bets.length; x++){
+                if(user.bets[x].active == true){
+                    objectIds.push(user.bets[x]._id);
+                }
+            }
+            mongoose.model('Users').updateOne(user[i], {$pull: {bets: {$in: objectIds}}}, function(err){
+                if(err)console.log(err.message);
+                else console.log('Removed active bets from user: ' + user.steamid);
+                
+                if(i == users.length){
+                    return cb();
+                }
+            })
         }
+    });
+}
+
+userSchema.statics.bet = function bet(steamid, amount, gamemode, cb){
+    mongoose.model('Users').findOne({steamid: steamid},function(err, user){
+        calculateBalance(steamid, function(actualBalance){
+            if(actualBalance >= amount){
+
+                let bet = new Bet({
+                    amount: amount,
+                    gamemode: gamemode,
+                    date: new Date(),
+                    active: true,
+                    owner: user._id
+                });
+
+                bet.save(function(err){
+
+                    user.bets.push(bet);
+                    user.save(function(err){
+                        return cb(true, bet, actualBalance - amount);
+                    })
+
+                });
+                
+            }else{
+                return cb(false, null, null)
+
+            }
+        });
     });
 }
 

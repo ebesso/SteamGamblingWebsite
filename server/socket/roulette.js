@@ -1,6 +1,8 @@
 const {getSteamProfile} = require('../services/steam');
 const jwt = require("jsonwebtoken");
 const User = require('../models/user');
+const Round = require('../models/round')
+const { UV_FS_O_FILEMAP } = require('constants');
 
 exports = module.exports = function(io){
     const nsp = io.of('/roulette');
@@ -21,18 +23,20 @@ exports = module.exports = function(io){
         setTimeout(roll, 20000);
     }
 
-    function payoutBets(color, multiplier){
+    async function handleBets(color, multiplier){
         for(var i = 0; i < rouletteState.bets.length; i++){
-            var bet = rouletteState.bets[i];
+            let bet = rouletteState.bets[i];
             if(bet.color == color){
-                User.addUserBalance(bet.steamid, bet.amount * multiplier);
+                await bet.bet.finish(multiplier, (success) => {});
+            }else{
+                await bet.bet.finish(0, (success) => {});
             }
         }
     }
 
     function roll(){
-        var winningColor = null;
-        var multiplier = null;
+        var winningColor = 'red';
+        var multiplier = 2;
         Math.floor(Math.random() * 15);
 
         if(Math.floor(Math.random() * 15) == 0){
@@ -46,11 +50,21 @@ exports = module.exports = function(io){
             multiplier = 2;
         }
 
-        payoutBets(winningColor, multiplier);
-        consoleq.log(winningColor)
-        rouletteState.active = true;
-        nsp.emit('roll', {'color': winningColor});
-        setTimeout(startCountdown, 13000);
+        handleBets(winningColor, multiplier);
+
+        let round = new Round({
+            gamemode: 'roulette',
+            bets: rouletteState.bets.map(b => b.bet._id),
+            outcome: winningColor,
+            date: new Date()
+        });
+        round.save(function(err){
+            console.log('Rolling: ' + winningColor);
+            rouletteState.active = true;
+            nsp.emit('roll', {'color': winningColor});
+            setTimeout(startCountdown, 13000);
+        });
+ 
     }
 
     nsp.on('connection', function(socket){
@@ -61,19 +75,18 @@ exports = module.exports = function(io){
 
                 jwt.verify(data.jwtToken, process.env.SECRET_KEY, function(err, decoded){
                     if(err){//Not logged in
-                        socket.emit('betResponse', {message: 'Failed to authenticate', balance: newBalance, success: false});
+                        socket.emit('betResponse', {message: 'Failed to authenticate', balance: null, success: false});
                     }else{
-                        User.removeUserBalance(decoded.user, data.amount, function(success, newBalance){
-
+                        User.bet(decoded.user, data.amount, 'roulette', function(success, newBet, newBalance){
                             if(success){
                                 getSteamProfile(decoded.user, function(profile){
-    
                                     var bet = {
                                         amount: data.amount,
                                         color: data.color,
                                         username: profile.nickname,
                                         profilePicture: profile.avatar.small,
-                                        steamid: decoded.user
+                                        steamid: decoded.user,
+                                        bet: newBet
                                     }
                     
                                     rouletteState.bets.push(bet);

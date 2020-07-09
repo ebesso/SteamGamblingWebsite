@@ -44,7 +44,7 @@ class RouletteBetting extends Component{
         this.setState({amount: 1});
     }
     updateDimensions = () => {
-        if(window.innerWidth < 1250){
+        if(window.innerWidth < 900){
             this.setState({width: '100%'})
         }
         else{

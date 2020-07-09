@@ -70,7 +70,7 @@ class Roulette extends Component{
 
     handleBetResponse = (data) => {
         if(data.success == true){
-            this.props.updateBalance(data.newBalance);
+            this.props.updateBalance(data.balance );
         }else{
             if(data.message == 'Insufficent funds'){
                 this.setState({dialogs: {insufficentFunds: true}});
@@ -93,6 +93,7 @@ class Roulette extends Component{
     }
 
     render(){
+
         return (
             <div>
                 <LoginRequired open={this.state.dialogs.loginRequired} onClose={this.closeLoginRequiredPopup} login={this.handleLogin}/>
@@ -103,7 +104,7 @@ class Roulette extends Component{
                 </div>
 
                 <div style={{width: '100%', marginTop: '20px', zIndex: '2'}}>
-                    <RouletteBetting bets={this.state.bets} placeBet={this.placeBet} active={this.state.active}/>
+                    <RouletteBetting bets={this.state.bets} placeBet={this.placeBet} active={this.state.active} winningColor={this.state.winningColor}/>
                 </div>
             </div>
         );

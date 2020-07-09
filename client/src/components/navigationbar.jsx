@@ -56,7 +56,7 @@ class NavigationBar extends Component{
         }
 
         return(
-            <AppBar position='static'>
+            <AppBar position='fixed'>
                 <Toolbar style={{backgroundColor: '#1d2126', height: '70px'}}>
                     <img src="https://rustsites.com/img/csgoroll-logo.png" alt="Icon" style={{height: '50%'}}/>
 

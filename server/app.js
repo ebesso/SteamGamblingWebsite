@@ -8,7 +8,17 @@ const cookieParser = require('cookie-parser');
 
 const PORT = 5000;
 
-mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true}).then(() => console.log('Connected to MongoDB'));
+const Bet = require('./models/bet')
+const User = require('./models/user')
+
+mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopology: true}).then(function(){
+    console.log('Database connected');
+    User.removeActiveBets(function(){
+        console.log('Cleared bets from users');
+        Bet.removeActiveBets();
+    });
+
+});
 
 const app = express();
 app.use(require('cors')({origin: true, credentials: true}));
@@ -28,10 +38,16 @@ app.use('/user/get', jwt({secret: process.env.SECRET_KEY}), require('./routes/us
 app.use(function (err, req, res, next) {
     if (err.name === 'UnauthorizedError') {
       res.sendStatus(401);
+    }else if(err){
+        console.log('Error: ' + err.message);
+        res.sendStatus(500);
     }
 });
 
+
 const roulette = require('./socket/roulette')(io);
+const chat = require('./socket/chat')(io);
+
 
 
 server.listen(PORT, () => console.log(`Listening to port ${PORT}...`)); 

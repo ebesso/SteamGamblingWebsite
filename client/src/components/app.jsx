@@ -3,6 +3,8 @@ import { Component } from 'react';
 
 import NavBar from './navigationbar';
 import Roulette from './roulette/roulette';
+import Chat from './chat/chat';
+
 
 import axios from 'axios';
 
@@ -20,7 +22,8 @@ class App extends Component{
             loggedIn: false,
             name: null,
             avatar: null
-        }
+        },
+        hiddenChat: true,
     }
 
     constructor(){
@@ -104,21 +107,41 @@ class App extends Component{
 
             this.getUserInfo();
         });
+        this.updateDimensions();
+        window.addEventListener('resize', this.updateDimensions);
     }
 
+    componentWillUnmount(){
+        this.socket.close();
+        window.removeEventListener('resize', this.updateDimensions);
+    }
+
+
+    updateDimensions = () => {
+        if(window.innerWidth < 1550){
+            this.setState({hiddenChat: true});
+        }
+        else{
+            this.setState({hiddenChat: false});
+        }
+    }
 
     render(){
         return (
             <div style={{backgroundColor: '#21252b', minHeight: '100%', width: '100%', position: 'absolute', height: 'auto', backgroundRepeat: 'repeat'}}>
 
             <NavBar login={this.handleLogin} logout={this.handleLogout} loggedIn={this.state.user.loggedIn} username={this.state.user.name} avatar={this.state.user.avatar} balance={this.state.user.balance}/>
-    
-            <center>
-                <div style={{marginTop: '100px', height: '100%', width: '60%'}}>
-                    <Roulette user={this.state.user} handleLogin={this.handleLogin} updateBalance={this.updateBalance}/>
-                </div>
-            </center>
-    
+            <div style={{width: '15%', minWidth: '200px', height: '100%', position: 'fixed', backgroundColor: '#1d2126', marginTop: '70px', display: (this.state.hiddenChat) ? 'none' : 'block'}}>
+                <Chat loggedIn={this.state.user.loggedIn}/>
+            </div>
+            <div style={{marginLeft: (this.state.hiddenChat) ? '0%' : '15%'}}>
+                <center>
+                    <div style={{marginTop: '150px', height: '100%', width: (this.state.hiddenChat) ? '90%' : '80%'}}>
+                        <Roulette user={this.state.user} handleLogin={this.handleLogin} updateBalance={this.updateBalance}/>
+                    </div>
+                </center>
+            </div>
+
         </div>
         )
 
