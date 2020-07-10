@@ -1,9 +1,10 @@
 import React from 'react';
-import {AppBar, Toolbar, Button, Avatar, MenuItem, Popper, ClickAwayListener, Paper, MenuList} from '@material-ui/core';
+import {AppBar, Toolbar, Button, Avatar, MenuItem, Popper, ClickAwayListener, Paper, MenuList, Drawer, Divider} from '@material-ui/core';
 import { Component } from 'react';
-import {FaDharmachakra, FaChartLine, FaCoins, FaCaretDown, FaUserAlt, FaBullhorn} from 'react-icons/fa'
+import {FaDharmachakra, FaChartLine, FaCoins, FaCaretDown, FaUserAlt, FaBullhorn, FaBalanceScale, FaBars} from 'react-icons/fa'
 import { Spring } from 'react-spring/renderprops'
 import {isLoggedIn} from '../services/authentication'
+import { readyException } from 'jquery';
 
 class NavButton extends Component{
     render(){
@@ -20,11 +21,28 @@ class NavigationBar extends Component{
 
     state = {
         profileMenuOpen: false,
-        profileMenuAnchor: null
+        profileMenuAnchor: null,
+        sidebar: false,
+        sidebarOpen: false
     }
 
     constructor(){
         super();
+    }
+
+    updateDimensions = () => {
+        if(window.innerWidth < 900){
+            this.setState({sidebar: true});
+        }
+        else{
+            
+            this.setState({sidebar: false, sidebarOpen: false});
+        }
+    }
+
+    componentDidMount(){
+        this.updateDimensions();
+        window.addEventListener('resize', this.updateDimensions);
     }
 
     closeProfileMenu = () =>{
@@ -41,13 +59,16 @@ class NavigationBar extends Component{
 
         const profileMenuStyle = {
             backgroundColor: '#262a30',
-            borderRadius: '0.7rem'
+            borderRadius: '0.7rem',
+            width: '200px',
+            marginTop: '20px'
+
         }
 
         const menuListItemStyle1 = {
             color: 'white',
-            padding: '1rem',
-            fontSize: '1rem'
+            padding: '20px',
+            fontSize: '0.9rem'
         }
         const menuListItemStyle2 = {
             color: 'hsla(0,0%,100%,.6)',
@@ -56,55 +77,109 @@ class NavigationBar extends Component{
         }
 
         return(
-            <AppBar position='fixed'>
-                <Toolbar style={{backgroundColor: '#1d2126', height: '70px'}}>
-                    <img src="https://rustsites.com/img/csgoroll-logo.png" alt="Icon" style={{height: '50%'}}/>
+            <React.Fragment>
+                <AppBar position='fixed' style={{zIndex: '7'}}>
+                    <Toolbar style={{backgroundColor: '#1d2126', height: '70px'}}>
+                        {(this.state.sidebar == false) ? 
+                            <img src="https://rustsites.com/img/csgoroll-logo.png" alt="Icon" style={{height: '50%'}}/>
+                            :
+                            <FaBars style={{color: 'white', fontSize: '32px', fontWeight: '200'}} onClick={() => this.setState({sidebarOpen: (this.state.sidebarOpen) ? false : true})}/>
+                        }
+                        
+                        {(this.state.sidebar == false) ? 
+                            <React.Fragment>
+                                <NavButton text="ROLL" selected={true} icon={<FaDharmachakra style={{marginRight: '2px', color: 'lightgrey'}}/>}/>
+                                <NavButton text="CRASH" selected={false} icon={<FaChartLine style={{marginRight: '2px', color: 'lightgrey'}}/>}/>
+                            </React.Fragment>
+                        :
+                        <React.Fragment></React.Fragment>
+                        }
 
-                    <NavButton text="ROLL" selected={true} icon={<FaDharmachakra style={{marginRight: '2px', color: 'lightgrey'}}/>}/>
-                    <NavButton text="CRASH" selected={false} icon={<FaChartLine style={{marginRight: '2px', color: 'lightgrey'}}/>}/>
 
-                    {(this.props.loggedIn) ?
-                    <div style={{display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
-                        <Button style={{marginLeft: 'auto', color: 'hsla(0,0%,100%,.75)', fontWeight: 600, marginRight: '1rem'}} onClick={this.props.logout}>Withdraw</Button>
-                        <Button style={{marginLeft: 'auto', color: 'hsla(0,0%,100%,.75)', fontWeight: 600, marginRight: '1rem'}} onClick={this.props.logout}>Deposit</Button>
-                        <Button style={{fontSize: '1rem', marginRight: '1rem'}}>
-                            <FaCoins style={{color: 'gold', marginRight: '0.2rem'}}/>
-                            <Spring
-                                to={{number: this.props.balance}}
-                                config = {{duration: 400}}
-                            >
-                                {props => <span style={{fontWeight: '600', marginRight: '0.5rem', color: 'white'}}>{props.number.toFixed(2)}</span>}
-                            </Spring>
-                            
-                        </Button>
-                        <div>
-                            <Button style={{marginLeft: 'auto', color: 'white', backgroundColor: '#262a30', fontWeight: 400}} onClick={this.openProfileMenu}>
-                                <Avatar src={this.props.avatar} style={{height: '2rem', width: '2rem'}}/>
-                                <FaCaretDown style={{marginLeft: '0.5rem', fontSize: '1.5rem'}}/>
-                            </Button>
-                            <Popper style={profileMenuStyle} open={this.state.profileMenuOpen} anchorEl={this.state.profileMenuAnchor}>
-                                    <Paper style={profileMenuStyle}>
-                                        <ClickAwayListener onClickAway={this.closeProfileMenu}>
-                                            <MenuList>
-                                                <MenuItem style={menuListItemStyle1}><FaUserAlt style={{marginRight: '0.5rem'}}/>{this.props.username}</MenuItem>
-                                                <MenuItem style={menuListItemStyle1}><FaBullhorn style={{marginRight: '0.5rem'}}/>Affiliate</MenuItem>
 
-                                                <MenuItem style={menuListItemStyle2}>FAQ</MenuItem>
-                                                <MenuItem style={menuListItemStyle2} onClick={this.props.logout}>Logout</MenuItem>
+                        {(this.props.loggedIn) ?
+                        <div style={{display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
+                            {(this.state.sidebar == false) ? 
+                                <React.Fragment>
+                                    <Button style={{marginLeft: 'auto', color: 'hsla(0,0%,100%,.75)', fontWeight: 600, marginRight: '1rem'}} onClick={this.props.widthdraw}>Withdraw</Button>
+                                    <Button style={{marginLeft: 'auto', color: 'hsla(0,0%,100%,.75)', fontWeight: 600, marginRight: '1rem'}} onClick={this.props.deposit}>Deposit</Button>
+                                    <Button style={{fontSize: '1rem', marginRight: '1rem'}}>
+                                        <FaCoins style={{color: 'gold', marginRight: '0.2rem'}}/>
+                                        <Spring
+                                            to={{number: this.props.balance}}
+                                            config = {{duration: 400}}
+                                        >
+                                            {props => <span style={{fontWeight: '600', marginRight: '0.5rem', color: 'white'}}>{props.number.toFixed(2)}</span>}
+                                        </Spring>
+                                        
+                                    </Button>
+                                </React.Fragment>
+                                :
+                                <React.Fragment></React.Fragment>
+                            }
+                            <div>
+                                <Button style={{marginLeft: 'auto', color: 'white', backgroundColor: '#262a30', fontWeight: 400}} onClick={this.openProfileMenu}>
+                                    <Avatar src={this.props.avatar} style={{height: '2rem', width: '2rem'}}/>
+                                    <FaCaretDown style={{marginLeft: '0.5rem', fontSize: '1.5rem'}}/>
+                                </Button>
+                                <Popper style={profileMenuStyle} open={this.state.profileMenuOpen} anchorEl={this.state.profileMenuAnchor}>
+                                        <Paper style={{width: '100%', backgroundColor: '#262a30', borderRadius: '0.7rem',}}>
+                                            <ClickAwayListener onClickAway={this.closeProfileMenu}>
+                                                <MenuList>
+                                                    <MenuItem style={menuListItemStyle1}><FaUserAlt style={{marginRight: '0.5rem'}}/>{this.props.username}</MenuItem>
+                                                    <MenuItem style={menuListItemStyle1}><FaBullhorn style={{marginRight: '0.5rem'}}/>Affiliate</MenuItem>
+                                                    <MenuItem style={menuListItemStyle1}><FaBalanceScale style={{marginRight: '0.5rem'}}/>Fairness</MenuItem>
 
-                                            </MenuList>
-                                        </ClickAwayListener>
-                                    </Paper>
-                            </Popper>
+
+                                                    <MenuItem style={menuListItemStyle2}>FAQ</MenuItem>
+                                                    <MenuItem style={menuListItemStyle2} onClick={this.props.logout}>Logout</MenuItem>
+
+                                                </MenuList>
+                                            </ClickAwayListener>
+                                        </Paper>
+                                </Popper>
+                            </div>
                         </div>
+                        :
+                        <Button style={{marginLeft: 'auto', color: 'white', backgroundColor: '#00c74d', fontWeight: 600}} onClick={this.props.login}>Login</Button>
+                        }
 
-                    </div>
-                    :
-                    <Button style={{marginLeft: 'auto', color: 'white', backgroundColor: '#00c74d', fontWeight: 600}} onClick={this.props.login}>Login</Button>
-                    }
+                    </Toolbar>
+                </AppBar>
+                <Drawer anchor='left' open={this.state.sidebarOpen} onClose={()=> {this.setState({sidebarOpen: false})}} style={{zIndex: 6}}>
+                    <Paper style={{width: '100%', height: '100%', backgroundColor: '#21252b'}}>
+                        {(this.props.loggedIn) ? 
+                        <div style={{marginTop: '90px', display: 'flex', justifyContent: 'space-between', width: '300px'}}>
+                                <Button style={{fontSize: '0.95rem', color: 'white', marginLeft: '10px'}}><FaCoins style={{color: 'gold', marginRight: '0.4rem'}}/>{this.props.balance}</Button>
+                                <Button style={{color: 'white', boxShadow: '0 10px 27px 0 rgba(0,255,12,.1),inset 0 2px 0 #35d87b,inset 0 -2px 0 #00913c', backgroundColor: 'rgb(0, 199, 77)',fontWeight: 600, fontSize: '0.95rem'}} onClick={this.props.deposit}>Deposit</Button>
+                                <Button style={{color: 'hsla(0,0%,100%,.75)', fontWeight: 600, fontSize: '0.95rem', marginRight: '10px'}} onClick={this.props.withdraw}>Withdraw</Button>
+                        </div>
+                        :
+                        <Button style={{color: 'white', boxShadow: '0 10px 27px 0 rgba(0,255,12,.1),inset 0 2px 0 #35d87b,inset 0 -2px 0 #00913c', backgroundColor: 'rgb(0, 199, 77)',fontWeight: 600, fontSize: '0.95rem', marginTop: '90px', marginLeft: '100px', marginRight: '100px', width: '100px'}} onClick={this.props.login}>Login</Button>
 
-                </Toolbar>
-            </AppBar>
+                        }
+
+                        
+                        <Divider style={{marginTop: '10px', marginBottom: '5px'}}/>
+
+                        <MenuList style={{marginLeft: '10px', padding: 0}}>
+                            <MenuItem style={{padding: 0}}>
+                                <div style={{display: 'flex', alignItems: 'center', padding: '5px', fontSize: '1.5rem', color: 'hsla(0,0%,100%,.75)'}}>
+                                    <FaDharmachakra/>
+                                    <a style={{fontWeight: 600, marginLeft: '5px'}}>ROLL</a>
+                                </div>
+                            </MenuItem>
+                            <MenuItem style={{padding: 0}}>
+                                <div style={{display: 'flex', alignItems: 'center', padding: '5px', fontSize: '1.5rem', color: 'hsla(0,0%,100%,.75)'}}>
+                                    <FaChartLine/>
+                                    <a style={{fontWeight: 600, marginLeft: '5px'}}>Crash</a>
+                                </div>
+                            </MenuItem>
+                        </MenuList>
+                    </Paper>
+                </Drawer>
+            </React.Fragment>
+
         );
     }
 }

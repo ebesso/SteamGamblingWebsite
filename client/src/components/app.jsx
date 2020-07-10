@@ -128,7 +128,7 @@ class App extends Component{
 
     render(){
         return (
-            <div style={{backgroundColor: '#21252b', minHeight: '100%', width: '100%', position: 'absolute', height: 'auto', backgroundRepeat: 'repeat'}}>
+            <div style={{backgroundColor: '#21252b', minHeight: '100%', width: '100%', position: 'absolute', height: 'auto', backgroundRepeat: 'repeat', overflow: 'hidden'}}>
 
             <NavBar login={this.handleLogin} logout={this.handleLogout} loggedIn={this.state.user.loggedIn} username={this.state.user.name} avatar={this.state.user.avatar} balance={this.state.user.balance}/>
             <div style={{width: '15%', minWidth: '200px', height: '100%', position: 'fixed', backgroundColor: '#1d2126', marginTop: '70px', display: (this.state.hiddenChat) ? 'none' : 'block'}}>

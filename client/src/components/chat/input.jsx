@@ -28,7 +28,7 @@ class Input extends Component{
             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '20px'}}>
                 {(this.props.loggedIn) ? 
                 <form onSubmit={this.sendMessage}>
-                    <input style={{width: '80<%', background: 'none', color: 'rgb(106, 109, 112)', fontSize: '1rem', border: 'none'}} placeholder='Say something...' value={this.state.message} onChange={this.messageChanged}/>
+                    <input style={{width: '80%', background: 'none', color: 'rgb(106, 109, 112)', fontSize: '1rem', border: 'none', outline: 'none'}} placeholder='Say something...' value={this.state.message} onChange={this.messageChanged}/>
                     <button style={{background: 'none', border: 'none'}} type='submit'><FaPaperPlane style={{color: 'rgb(106, 109, 112)', fontSize: '1rem'}}/></button>
                 </form>
 
