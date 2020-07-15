@@ -2,17 +2,28 @@ import React from 'react';
 import {AppBar, Toolbar, Button, Avatar, MenuItem, Popper, ClickAwayListener, Paper, MenuList, Drawer, Divider} from '@material-ui/core';
 import { Component } from 'react';
 import {FaDharmachakra, FaChartLine, FaCoins, FaCaretDown, FaUserAlt, FaBullhorn, FaBalanceScale, FaBars} from 'react-icons/fa'
+import styled from 'styled-components';
 import { Spring } from 'react-spring/renderprops'
 import {isLoggedIn} from '../services/authentication'
 import { readyException } from 'jquery';
 
 class NavButton extends Component{
     render(){
+
+        const Wrapper = styled.div`
+        display: flex;
+        align-items: center;
+        margin-left: 20px;
+        border-bottom: ${(this.props.selected)?'2px solid #FF4500':'2px solid transparent'};
+        &:hover{
+            border-bottom: 2px solid #FF4500;
+        }
+        `
         return(
-            <div style={{display: 'flex', alignItems: 'center', marginLeft: '20px', borderBottom: (this.props.selected) ? '2px solid #FF4500' : 'none', padding: '5px'}}>
-                {this.props.icon}
-                <a style={{fontWeight: 600}}>{this.props.text}</a>
-            </div>
+            <Wrapper>
+                
+                <Button style={{fontWeight: 600, color: 'hsla(0,0%,100%,.75)', padding: '0', fontSize: '18px'}}>{this.props.icon} {this.props.text}</Button>
+            </Wrapper>
         );
     }
 }
@@ -89,7 +100,8 @@ class NavigationBar extends Component{
                         {(this.state.sidebar == false) ? 
                             <React.Fragment>
                                 <NavButton text="ROLL" selected={true} icon={<FaDharmachakra style={{marginRight: '2px', color: 'lightgrey'}}/>}/>
-                                <NavButton text="CRASH" selected={false} icon={<FaChartLine style={{marginRight: '2px', color: 'lightgrey'}}/>}/>
+                                <NavButton text="Crash (Coming soon)" selected={false} icon={<FaChartLine style={{marginRight: '2px', color: 'lightgrey'}}/>}/>
+
                             </React.Fragment>
                         :
                         <React.Fragment></React.Fragment>
@@ -101,9 +113,10 @@ class NavigationBar extends Component{
                         <div style={{display: 'flex', alignItems: 'center', marginLeft: 'auto'}}>
                             {(this.state.sidebar == false) ? 
                                 <React.Fragment>
-                                    <Button style={{marginLeft: 'auto', color: 'hsla(0,0%,100%,.75)', fontWeight: 600, marginRight: '1rem'}} onClick={this.props.widthdraw}>Withdraw</Button>
-                                    <Button style={{marginLeft: 'auto', color: 'hsla(0,0%,100%,.75)', fontWeight: 600, marginRight: '1rem'}} onClick={this.props.deposit}>Deposit</Button>
-                                    <Button style={{fontSize: '1rem', marginRight: '1rem'}}>
+                                    <NavButton style={{marginLeft: 'auto', marginRight: '1rem'}} text='Withdraw'/>
+                                    <NavButton style={{marginLeft: 'auto', marginRight: '1rem'}} text='Deposit'/>
+
+                                    <Button style={{fontSize: '18px', marginRight: '1rem', marginLeft: '20px', padding: '5px'}}>
                                         <FaCoins style={{color: 'gold', marginRight: '0.2rem'}}/>
                                         <Spring
                                             to={{number: this.props.balance}}

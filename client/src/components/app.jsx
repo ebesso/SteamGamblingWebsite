@@ -1,10 +1,12 @@
 import React from 'react';
 import { Component } from 'react';
+import {BrowserRouter, Switch, Route, Redirect} from 'react-router-dom'
+
 
 import NavBar from './navigationbar';
 import Roulette from './roulette/roulette';
 import Chat from './chat/chat';
-
+import Profile from './profile/profile';
 
 import axios from 'axios';
 
@@ -128,23 +130,34 @@ class App extends Component{
 
     render(){
         return (
-            <div style={{backgroundColor: '#21252b', minHeight: '100%', width: '100%', position: 'absolute', height: 'auto', backgroundRepeat: 'repeat', overflow: 'hidden'}}>
+            <BrowserRouter>
+                <div style={{backgroundColor: '#21252b', minHeight: '100%', width: '100%', position: 'absolute', height: 'auto', backgroundRepeat: 'repeat', overflow: 'hidden'}}>
 
-            <NavBar login={this.handleLogin} logout={this.handleLogout} loggedIn={this.state.user.loggedIn} username={this.state.user.name} avatar={this.state.user.avatar} balance={this.state.user.balance}/>
-            <div style={{width: '15%', minWidth: '200px', height: '100%', position: 'fixed', backgroundColor: '#1d2126', marginTop: '70px', display: (this.state.hiddenChat) ? 'none' : 'block'}}>
-                <Chat loggedIn={this.state.user.loggedIn}/>
-            </div>
-            <div style={{marginLeft: (this.state.hiddenChat) ? '0%' : '15%'}}>
-                <center>
-                    <div style={{marginTop: '150px', height: '100%', width: (this.state.hiddenChat) ? '90%' : '80%'}}>
-                        <Roulette user={this.state.user} handleLogin={this.handleLogin} updateBalance={this.updateBalance}/>
+                    <NavBar login={this.handleLogin} logout={this.handleLogout} loggedIn={this.state.user.loggedIn} username={this.state.user.name} avatar={this.state.user.avatar} balance={this.state.user.balance}/>
+                    <div style={{width: '15%', minWidth: '200px', height: '100%', position: 'fixed', backgroundColor: '#1d2126', marginTop: '70px', display: (this.state.hiddenChat) ? 'none' : 'block'}}>
+                        <Chat loggedIn={this.state.user.loggedIn}/>
                     </div>
-                </center>
-            </div>
+                    <div style={{marginLeft: (this.state.hiddenChat) ? '0%' : '15%'}}>
+                        <center>
+                            <div style={{marginTop: '150px', height: '100%', width: (this.state.hiddenChat) ? '90%' : '80%'}}>
+                                <Switch>
+                                    <Route path='/roll'>
+                                        <Roulette user={this.state.user} handleLogin={this.handleLogin} updateBalance={this.updateBalance}/>
+                                    </Route>
 
-        </div>
+                                    <Route path='/profile' render={props => (
+                                        <Profile loggedIn={this.state.user.loggedIn} login={this.handleLogin}/>
+                                    )}/>
+                                    <Route exact path='/'>
+                                        <Redirect to='/roll'/>
+                                    </Route>
+                                </Switch>
+                            </div>
+                        </center>
+                    </div>
+                </div>
+            </BrowserRouter>
         )
-
     }
 }
 
