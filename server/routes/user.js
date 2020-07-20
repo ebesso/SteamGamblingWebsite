@@ -11,6 +11,13 @@ router.get('/balance', function(req, res){
     });
 });
 
+router.get('/bets', function(req, res){
+    User.getUserBets(req.user.user, function(err, bets){
+        res.status(200).send(bets);
+    })
+
+});
+
 router.get('/steam', function(req, res){
     getSteamProfile(req.user.user, function(profile){
         if(profile == null){

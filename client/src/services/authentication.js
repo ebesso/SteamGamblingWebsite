@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BACKEND_URL = 'http://192.168.133.155:5000'
+const BACKEND_URL = 'http://localhost:5000'
 
 export const getToken = function getJWTToken(){
     return localStorage.getItem('jwtToken')
@@ -25,6 +25,13 @@ export const getBalance = function getBalance(cb){
             return cb(null);
         }
 
+    });
+}
+
+export const getBets = function getBets(cb){
+    axios.get(BACKEND_URL + '/user/get/bets', {withCredentials: true, headers: {Authorization: 'Bearer ' + getToken()}}).then(res => {
+        console.log(res.data);
+        cb(res.data);
     });
 }
 

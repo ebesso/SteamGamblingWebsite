@@ -42,7 +42,7 @@ class NavigationBar extends Component{
     }
 
     updateDimensions = () => {
-        if(window.innerWidth < 900){
+        if(window.innerWidth < 1000){
             this.setState({sidebar: true});
         }
         else{

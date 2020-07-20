@@ -31,6 +31,13 @@ userSchema.statics.getUserBalance = function getUserBalance(steamid, cb){
     calculateBalance(steamid, cb);
 }
 
+userSchema.statics.getUserBets = function getUserBets(steamid, cb){
+    mongoose.model('Users').findOne({steamid: steamid}, function(err, user){
+        Bet.find({owner: user._id, active: false}, cb);
+    });
+
+}
+
 userSchema.statics.removeActiveBets = (cb) => {
     mongoose.model('Users').find({}).populate('bets').exec(function(err, users){
         for(var i = 0; i < users.length; i++){

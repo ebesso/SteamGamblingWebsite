@@ -6,7 +6,7 @@ import {getToken} from '../../services/authentication';
 import Message from './message'
 import Input from './input'
 
-const ENDPOINT = '192.168.133.155:5000/chat';
+const ENDPOINT = 'http://localhost:5000/chat';
 
 class Chat extends Component{
 
@@ -46,13 +46,13 @@ class Chat extends Component{
 
         return(
             <div style={{height: 'inherit'}}>
-                <ul style={{listStyleType: 'none', padding: '0', margin: '0', overflowY: 'scroll', overflowX: 'hidden', height: '85%'}}>
+                <ul style={{listStyleType: 'none', padding: '0', margin: '0', overflowY: 'scroll', overflowX: 'hidden', height: window.innerHeight - 120}}>
                     {this.state.messages.map((msg, index) => 
                         <li style={{marginBottom: '7px'}} key={index}><Message username={msg.username} profilePicture={msg.profilePicture} message={msg.message}/></li>
                     )}
                     <li ref={(el) => {this.lastMessage = el;}}></li>
                 </ul>
-                <Input loggedIn={this.props.loggedIn} sendMessage={this.sendMessage}/>
+                <Input loggedIn={this.props.loggedIn} sendMessage={this.sendMessage} style={{position: 'absolute', bottom: 0, left: 0}}/>
             </div>
         );
     }

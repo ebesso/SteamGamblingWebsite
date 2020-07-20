@@ -12,7 +12,7 @@ import LoginRequired from '../dialogs/LoginRequired';
 import InsufficentFunds from '../dialogs/InsufficentFunds';
 
 
-const ENDPOINT = '192.168.133.155:5000/roulette';
+const ENDPOINT = 'http://localhost:5000/roulette';
 
 class Roulette extends Component{
     

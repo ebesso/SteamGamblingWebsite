@@ -10,9 +10,9 @@ import Profile from './profile/profile';
 
 import axios from 'axios';
 
-import {getToken, getNewAccessToken, getSteamProfile, getBalance} from '../services/authentication'
+import {getToken, getNewAccessToken, getSteamProfile, getBalance, getBets} from '../services/authentication'
 
-const BACKEND_URL = 'http://192.168.133.155:5000';
+const BACKEND_URL = 'http://localhost:5000';
 
 const refresh_interval = 600000;
 
@@ -23,7 +23,8 @@ class App extends Component{
             balance: 0,
             loggedIn: false,
             name: null,
-            avatar: null
+            avatar: null,
+            bets: []
         },
         hiddenChat: true,
     }
@@ -48,6 +49,7 @@ class App extends Component{
         if(newBalance == null){
             getBalance(function(balance){
                 user.balance = balance;
+                
                 app.setState({user: user});
             });
         }
@@ -68,7 +70,10 @@ class App extends Component{
 
             getBalance(function(balance){
                 user.balance = balance;
-                app.setState({user: user});
+                getBets(function(bets){
+                    user.bets = bets;
+                    app.setState({user: user});
+                });
             })
 
         })
@@ -134,7 +139,7 @@ class App extends Component{
                 <div style={{backgroundColor: '#21252b', minHeight: '100%', width: '100%', position: 'absolute', height: 'auto', backgroundRepeat: 'repeat', overflow: 'hidden'}}>
 
                     <NavBar login={this.handleLogin} logout={this.handleLogout} loggedIn={this.state.user.loggedIn} username={this.state.user.name} avatar={this.state.user.avatar} balance={this.state.user.balance}/>
-                    <div style={{width: '15%', minWidth: '200px', height: '100%', position: 'fixed', backgroundColor: '#1d2126', marginTop: '70px', display: (this.state.hiddenChat) ? 'none' : 'block'}}>
+                    <div style={{width: '300px', minWidth: '200px', height: '100%', position: 'fixed', backgroundColor: '#1d2126', marginTop: '70px', display: (this.state.hiddenChat) ? 'none' : 'block'}}>
                         <Chat loggedIn={this.state.user.loggedIn}/>
                     </div>
                     <div style={{marginLeft: (this.state.hiddenChat) ? '0%' : '15%'}}>
@@ -145,8 +150,8 @@ class App extends Component{
                                         <Roulette user={this.state.user} handleLogin={this.handleLogin} updateBalance={this.updateBalance}/>
                                     </Route>
 
-                                    <Route path='/profile' render={props => (
-                                        <Profile loggedIn={this.state.user.loggedIn} login={this.handleLogin}/>
+                                    <Route path='/profile' render={({match: {url}}) => (
+                                        <Profile loggedIn={this.state.user.loggedIn} bets={this.state.user.bets} login={this.handleLogin} user={this.state.user} url={url}/>
                                     )}/>
                                     <Route exact path='/'>
                                         <Redirect to='/roll'/>
