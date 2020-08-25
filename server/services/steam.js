@@ -39,7 +39,6 @@ function getSteamProfile(steamid, cb){
             return (cb(null))
         }
         if(rep != null){
-            console.log('Loaded from cache');
             return cb(JSON.parse(rep));
         }else{
             steam.getUserSummary(steamid).then(summary => {
@@ -47,7 +46,6 @@ function getSteamProfile(steamid, cb){
                     if(err){
                         console.log(err.message);
                     }else{
-                        console.log('Updated cache');
                     }
                 });
                 cb(summary);
