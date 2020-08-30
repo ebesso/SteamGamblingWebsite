@@ -6,6 +6,12 @@ export const getToken = function getJWTToken(){
     return localStorage.getItem('jwtToken')
 }
 
+export const getInventory = function getInventory(cb){
+    axios.get(BACKEND_URL + '/steam/inventory', {withCredentials: true, headers: {Authorization: 'Bearer ' + getToken()}}).then(res => {
+        cb(true, res.data)
+    }, (error) => {cb(false, null)});
+}
+
 export const getSteamProfile = function getSteamProfile(cb){
     axios.get(BACKEND_URL + '/user/get/steam', {headers: {Authorization: 'Bearer ' + getToken()}}).then(res => {
         cb(res.data);
@@ -30,7 +36,6 @@ export const getBalance = function getBalance(cb){
 
 export const getBets = function getBets(cb){
     axios.get(BACKEND_URL + '/user/get/bets', {withCredentials: true, headers: {Authorization: 'Bearer ' + getToken()}}).then(res => {
-        console.log(res.data);
         cb(res.data);
     });
 }

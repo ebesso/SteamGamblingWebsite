@@ -1,12 +1,14 @@
 const mongoose = require('mongoose');
 const Bet = require('./bet');
-
+const Offer = require('./offer')
 
 const userSchema = new mongoose.Schema({
     steamid: {type: String},
     balance: {type: Number},
     registerDate: {type: Date},
-    bets: [{type: mongoose.Schema.Types.ObjectID, ref: 'Bets'}]
+    tradeToken: {type: String},
+    bets: [{type: mongoose.Schema.Types.ObjectID, ref: 'Bets'}],
+    offers: [{type: mongoose.Schema.Types.ObjectID, ref: 'Offers'}],
 });
 
 function calculateBalance(steamid, cb){
@@ -96,6 +98,12 @@ userSchema.statics.addUserBalance = function addUserBalance(steamid, balance){
         user.save(function(err, newUser){});
     });
 }
+
+// mongoose.statics.sendOffer = function sendTradeOffer(steamid, tradeOffer, offerType){
+//     mongoose.model('Users').findOne({steamid: steamid}, function(err, user){
+
+//     })
+// }
 
 const User = mongoose.model('Users', userSchema);
 

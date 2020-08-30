@@ -45,7 +45,7 @@ class BetTable extends Component{
         return(
 
             <React.Fragment>
-                <TableContainer style={{marginLeft: '20px'}}>
+                <TableContainer style={{width: '98%'}}>
                     <Table style={{}}>
                         <TableHead>
                             <TableRow>

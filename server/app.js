@@ -5,6 +5,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const jwt = require('express-jwt');
 const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
 const PORT = 5000;
 
@@ -22,7 +23,10 @@ mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopolo
 
 const app = express();
 app.use(require('cors')({origin: true, credentials: true}));
+
 app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}))
 
 const server = http.createServer(app);
 const io = socketIO(server);
@@ -34,6 +38,8 @@ require('./config/steam')(app);
 
 app.use('/auth', require('./routes/auth'));
 app.use('/user/get', jwt({secret: process.env.SECRET_KEY}), require('./routes/user'));
+app.use('/steam', jwt({secret: process.env.SECRET_KEY}), require('./routes/steam'));
+
 
 app.use(function (err, req, res, next) {
     if (err.name === 'UnauthorizedError') {

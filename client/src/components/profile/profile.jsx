@@ -30,7 +30,7 @@ class Profile extends Component{
             return (
                 <BrowserRouter>
 
-                    <div style={{backgroundColor: '#1d2126', height: '100%', overflowY: 'scroll', overflowX: 'hidden'}}>
+                    <div style={{backgroundColor: '#1d2126', height: '100%', overflowY: 'hidden', overflowX: 'hidden'}}>
                         <NavBar/>
                         <Divider></Divider>
                             <Route path={`${this.props.url}/bets`} render={props => (

@@ -2,11 +2,11 @@ import React from 'react';
 import { Component } from 'react';
 import {BrowserRouter, Switch, Route, Redirect} from 'react-router-dom'
 
-
 import NavBar from './navigationbar';
 import Roulette from './roulette/roulette';
 import Chat from './chat/chat';
 import Profile from './profile/profile';
+import Trade from './inventory/trade'
 
 import axios from 'axios';
 
@@ -39,7 +39,6 @@ class App extends Component{
             }else{
                 app.setState({user: {loggedIn: false}});
             }
-
         });
     }
 
@@ -156,6 +155,9 @@ class App extends Component{
                                     <Route exact path='/'>
                                         <Redirect to='/roll'/>
                                     </Route>
+                                    <Route path='/deposit' render={({match: {url}}) => (
+                                        <Trade loggedIn={this.state.user.loggedIn} user={this.state.user} url={url} type='Deposit'/>
+                                    )}/>
                                 </Switch>
                             </div>
                         </center>
